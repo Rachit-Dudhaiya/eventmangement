@@ -20,7 +20,7 @@ A layered, API-driven client–server architecture with a **zero-trust** client 
 │  ├─ Presentation (Widgets, Screens)                          │
 │  ├─ State Management: Riverpod (providers, notifiers)        │
 │  ├─ Domain (use cases, models)                               │
-│  └─ Data (REST client, secure token storage, QR scanner)     │
+│  └─ Data (REST client, secure token storage, QR camera)      │
 └───────────────────────────┬──────────────────────────────────┘
                             │ HTTPS / JSON (Bearer token)
 ┌───────────────────────────▼──────────────────────────────────┐
@@ -69,7 +69,7 @@ A layered, API-driven client–server architecture with a **zero-trust** client 
 - **Zero trust:** No permission logic enforced client-side; server responses are authoritative. Client validates input only for UX.
 
 ### Key providers
-`authProvider`, `eventsProvider(filters)`, `registrationProvider`, `qrPassProvider`, `scannerProvider`, `analyticsProvider`.
+`authProvider`, `eventsProvider(filters)`, `registrationProvider`, `qrPassProvider`, `qrScanProvider`, `analyticsProvider`.
 
 ---
 
@@ -86,18 +86,30 @@ A layered, API-driven client–server architecture with a **zero-trust** client 
 
 ## 5. Role & Permission Matrix
 
-| Capability | Student | Organizer | Coordinator | Admin | Scanner |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Browse/search events | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Register for event | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Create/edit events | ❌ | ✅ (own) | ✅ | ✅ | ❌ |
-| Approve events | ❌ | ❌ | ✅ | ✅ | ❌ |
-| View audience records | ❌ | ✅ (own) | ✅ | ✅ | ❌ |
-| Scan QR / record entry | ❌ | ✅ | ❌ | ✅ | ✅ (only) |
-| View AI analytics | ❌ | ❌ | ✅ | ✅ | ❌ |
-| Manage users/roles | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Backups & audit log | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Export data | ❌ | limited | ✅ | ✅ | ❌ |
+There are **four user roles only: Student, Organizer, Coordinator, Admin.** There is no Scanner role. QR scanning is an Admin permission; trusted gate devices may use an admin-issued **QR scan key** (a scoped credential, not a user role).
+
+| Capability | Student | Organizer | Coordinator | Admin |
+|---|:---:|:---:|:---:|:---:|
+| Browse/search events | ✅ | ✅ | ✅ | ✅ |
+| Register for event | ✅ | ❌ | ❌ | ❌ |
+| Create events | ❌ | ❌ | ❌ | ✅ |
+| Edit events | ❌ | ✅ (assigned) | ✅ | ✅ |
+| Approve events | ❌ | ❌ | ✅ (parcel) | ✅ (final) |
+| View audience records | ❌ | ✅ (assigned) | ✅ | ✅ |
+| Scan QR / record entry | ❌ | ❌ | ❌ | ✅ |
+| Create & manage QR scan keys | ❌ | ❌ | ❌ | ✅ |
+| View AI analytics | ❌ | ❌ | ✅ | ✅ |
+| Manage users/roles | ❌ | ❌ | ❌ | ✅ |
+| Backups & audit log | ❌ | ❌ | ❌ | ✅ |
+| Export data | ❌ | ❌ | ✅ | ✅ |
+
+**Notes on the revised permissions**
+- **Registration** is student-only; organizers, coordinators, and admins cannot register for events.
+- **Event creation** is admin-only. Organizers and coordinators may only **edit** events assigned to them; they cannot create new ones.
+- **Approval** is split: coordinators give **partial/parcel approval** (department-level review), while the admin performs the **final approval**.
+- **QR scanning** is an Admin capability only. No dedicated Scanner role exists.
+- **QR scan keys** are scoped device credentials issued and managed only by Admin. A key grants access to the scan endpoint alone — it cannot edit events, view analytics, or export data. It is not a login role.
+- **Data export** is limited to Coordinator and Admin; organizers cannot export.
 
 ---
 
@@ -124,7 +136,7 @@ registrations(id, student_id, event_id, status, verified_at, created_at, updated
 qr_passes(id, registration_id, token_hash, expires_at, used_at, status, created_at)
   UNIQUE(token_hash)
 
-attendance(id, event_id, student_id, scanner_id, scanned_at, method, result)
+attendance(id, event_id, student_id, scanned_at, recorded_by_type, recorded_by_id, method, result)
   UNIQUE(event_id, student_id)
 
 notifications(id, user_id, event_id, type, channel, payload_json, sent_at, status)
@@ -157,8 +169,8 @@ audit_logs(id, actor_id, action, target, ip, created_at)
 ## 8. QR Entry Flow (latency-critical, ≤500 ms p95)
 
 1. Student opens app → requests QR pass → server issues short-lived HMAC token (cached in Redis).
-2. Scanner camera reads QR (client-only decode; no security decision).
-3. Client POSTs token to `/api/qr/validate` with scanner token.
+2. Gate device camera reads QR (client-only decode; no security decision).
+3. Client POSTs token to `/api/qr/validate` authenticated by Admin session or an admin-issued QR scan key.
 4. Server verifies HMAC signature + expiry (in-memory/Redis, no DB read for signature).
 5. Server checks duplicate via cached set + DB unique constraint; writes attendance in one transaction.
 6. Response: `PASS` (with name/id) or `DENY` + reason. Payload kept < 1 KB.
