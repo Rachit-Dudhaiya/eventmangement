@@ -199,3 +199,163 @@ Key constraints:
 - All FRs demonstrable end-to-end.
 - All NFRs verified (load test for QR latency, pentest for SQLi/hashing, restore drill for backup).
 - Role isolation tested: a Scanner token cannot call organizer/admin endpoints.
+
+
+## folder structure 
+
+
+campus_drive_backend/
+│
+├── app/
+│   │
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Role.php
+│   │   ├── Department.php
+│   │   ├── Event.php
+│   │   ├── EventCategory.php
+│   │   ├── Venue.php
+│   │   ├── Registration.php
+│   │   ├── Attendance.php
+│   │   ├── QrToken.php
+│   │   ├── Notification.php
+│   │   ├── DeviceToken.php
+│   │   ├── Feedback.php
+│   │   ├── EventOrganizer.php
+│   │   ├── AuditLog.php
+│   │   └── EventAnnouncement.php
+│   │
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php
+│   │   │   ├── UserController.php
+│   │   │   ├── RoleController.php
+│   │   │   ├── DepartmentController.php
+│   │   │   ├── EventController.php
+│   │   │   ├── RegistrationController.php
+│   │   │   ├── AttendanceController.php
+│   │   │   ├── QrController.php
+│   │   │   ├── NotificationController.php
+│   │   │   ├── AudienceController.php
+│   │   │   ├── FeedbackController.php
+│   │   │   ├── AnalyticsController.php
+│   │   │   ├── ReportController.php
+│   │   │   └── FileUploadController.php
+│   │   │
+│   │   ├── Middleware/
+│   │   │   ├── RoleMiddleware.php
+│   │   │   ├── PermissionMiddleware.php
+│   │   │   └── VerifyEmailMiddleware.php
+│   │   │
+│   │   ├── Requests/
+│   │   │   ├── LoginRequest.php
+│   │   │   ├── EventRequest.php
+│   │   │   └── RegistrationRequest.php
+│   │   │
+│   │   └── Resources/
+│   │       ├── UserResource.php
+│   │       ├── EventResource.php
+│   │       └── RegistrationResource.php
+│   │
+│   ├── Services/
+│   │   ├── AuthService.php
+│   │   ├── EmailVerificationService.php
+│   │   ├── EventService.php
+│   │   ├── RegistrationService.php
+│   │   ├── CapacityService.php
+│   │   ├── QRCodeService.php
+│   │   ├── AttendanceService.php
+│   │   ├── NotificationService.php
+│   │   ├── FileUploadService.php
+│   │   ├── AnalyticsService.php
+│   │   ├── AIReportService.php
+│   │   └── BackupService.php
+│   │
+│   ├── Jobs/
+│   │   ├── SendVerificationEmail.php
+│   │   ├── SendEventNotification.php
+│   │   ├── SendEventReminder.php
+│   │   └── GenerateAnalyticsReport.php
+│   │
+│   ├── Events/
+│   │   ├── EventCreated.php
+│   │   ├── EventUpdated.php
+│   │   ├── EventCancelled.php
+│   │   └── RegistrationCompleted.php
+│   │
+│   ├── Listeners/
+│   │   ├── NotifyRegisteredStudents.php
+│   │   └── UpdateEventCapacity.php
+│   │
+│   ├── Policies/
+│   │   ├── EventPolicy.php
+│   │   ├── RegistrationPolicy.php
+│   │   └── AttendancePolicy.php
+│   │
+│   └── Providers/
+│
+├── bootstrap/
+│
+├── config/
+│
+├── database/
+│   ├── migrations/
+│   │   ├── create_users_table.php
+│   │   ├── create_roles_table.php
+│   │   ├── create_departments_table.php
+│   │   ├── create_events_table.php
+│   │   ├── create_event_categories_table.php
+│   │   ├── create_venues_table.php
+│   │   ├── create_registrations_table.php
+│   │   ├── create_attendance_table.php
+│   │   ├── create_qr_tokens_table.php
+│   │   ├── create_notifications_table.php
+│   │   ├── create_device_tokens_table.php
+│   │   ├── create_feedback_table.php
+│   │   ├── create_event_organizers_table.php
+│   │   ├── create_audit_logs_table.php
+│   │   └── create_event_announcements_table.php
+│   │
+│   ├── seeders/
+│   │   ├── RoleSeeder.php
+│   │   ├── DepartmentSeeder.php
+│   │   └── AdminSeeder.php
+│   │
+│   └── factories/
+│
+├── routes/
+│   ├── api.php
+│   ├── web.php
+│   └── console.php
+│
+├── storage/
+│   ├── app/
+│   │   ├── public/
+│   │   │   └── event_posters/
+│   │   ├── private/
+│   │   │   ├── reports/
+│   │   │   └── backups/
+│   │   └── temporary/
+│   ├── logs/
+│   └── framework/
+│
+├── tests/
+│   ├── Feature/
+│   │   ├── AuthenticationTest.php
+│   │   ├── EventTest.php
+│   │   ├── RegistrationTest.php
+│   │   ├── CapacityTest.php
+│   │   ├── QrAttendanceTest.php
+│   │   ├── RolePermissionTest.php
+│   │   └── NotificationTest.php
+│   │
+│   └── Unit/
+│       ├── RegistrationServiceTest.php
+│       ├── QrCodeServiceTest.php
+│       └── CapacityServiceTest.php
+│
+├── .env
+├── composer.json
+├── artisan
+└── README.md
+
