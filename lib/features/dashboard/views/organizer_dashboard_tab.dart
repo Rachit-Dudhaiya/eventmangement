@@ -240,8 +240,11 @@ class _OrganizerDashboardTabState extends ConsumerState<OrganizerDashboardTab> {
                             event: event,
                             onTap: () => context.push('/events/${event.id}'),
                             onScanAttendance: () => context.push(
-                              '/attendance/qr/${event.id}',
-                              extra: event,
+                              '/attendance/scan',
+                              extra: {
+                                'eventId': event.id,
+                                'eventTitle': event.title,
+                              },
                             ),
                             onViewRoster: () => context.push(
                               '/attendance/report/${event.id}',

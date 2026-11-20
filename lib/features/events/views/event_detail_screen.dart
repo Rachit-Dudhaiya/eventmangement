@@ -447,8 +447,10 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                               Expanded(
                                 flex: 2,
                                 child: FilledButton(
-                                  onPressed: () =>
-                                      context.push('/attendance/scan'),
+                                  onPressed: () => context.push(
+                                    '/attendance/student-pass/${event.id}',
+                                    extra: event,
+                                  ),
                                   style: FilledButton.styleFrom(
                                     backgroundColor: AppTheme.accentTeal,
                                     minimumSize: const Size.fromHeight(48),
@@ -459,13 +461,13 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                                   child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.check_circle_rounded,
-                                          size: 19, color: Colors.white),
+                                      Icon(Icons.qr_code_2_rounded,
+                                          size: 20, color: Colors.white),
                                       SizedBox(width: 8),
                                       Text(
-                                        'Registered • Pass Ready',
+                                        'Show Live QR Pass (10s)',
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 13.5,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),

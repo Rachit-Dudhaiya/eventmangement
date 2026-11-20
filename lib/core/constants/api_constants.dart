@@ -34,6 +34,15 @@ class ApiConstants {
 
   static String generateAttendanceQr(int eventId) =>
       '/api/events/$eventId/attendance/qr';
+  static String startAttendanceSession(int eventId) =>
+      '/api/events/$eventId/attendance/session/start';
+  static String stopAttendanceSession(int eventId) =>
+      '/api/events/$eventId/attendance/session/stop';
+  static String attendanceSessionStatus(int eventId) =>
+      '/api/events/$eventId/attendance/session/status';
+  static String studentPass(int eventId) =>
+      '/api/events/$eventId/attendance/student-pass';
+  static const String scanStudentPass = '/api/attendance/scan-student-pass';
   static const String verifyAttendance = '/api/attendance/verify';
   static String eventAttendanceReport(int eventId) =>
       '/api/events/$eventId/attendance';

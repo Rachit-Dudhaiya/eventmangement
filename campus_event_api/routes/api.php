@@ -52,7 +52,12 @@ $router->add('DELETE', '/api/events/{id}/register', [RegistrationController::cla
 $router->add('GET', '/api/my-registrations', [RegistrationController::class, 'myRegistrations'], [AuthMiddleware::requireAuth()]);
 $router->add('GET', '/api/events/{id}/registrants', [RegistrationController::class, 'eventRegistrants'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
 
-// QR Attendance
+// QR Attendance & Dynamic Sessions
+$router->add('POST', '/api/events/{id}/attendance/session/start', [AttendanceController::class, 'startSession'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
+$router->add('POST', '/api/events/{id}/attendance/session/stop', [AttendanceController::class, 'stopSession'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
+$router->add('GET', '/api/events/{id}/attendance/session/status', [AttendanceController::class, 'sessionStatus'], [AuthMiddleware::requireAuth()]);
+$router->add('GET', '/api/events/{id}/attendance/student-pass', [AttendanceController::class, 'studentPass'], [AuthMiddleware::requireAuth(['student'])]);
+$router->add('POST', '/api/attendance/scan-student-pass', [AttendanceController::class, 'scanStudentPass'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
 $router->add('POST', '/api/events/{id}/attendance/qr', [AttendanceController::class, 'generateQr'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
 $router->add('POST', '/api/attendance/verify', [AttendanceController::class, 'verify'], [AuthMiddleware::requireAuth(['student'])]);
 $router->add('GET', '/api/events/{id}/attendance', [AttendanceController::class, 'eventReport'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
