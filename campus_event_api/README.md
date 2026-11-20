@@ -16,6 +16,11 @@
    ```bash
    mysql -u root -p < database/database.sql
    ```
+   For an existing database, apply the inbox migration:
+   ```bash
+   mysql -u root -p campus_event_db < database/migrations/20261120_create_notification_recipients.sql
+   ```
+   Replace `campus_event_db` with the database configured in `.env` if it differs.
 4. **Run the built-in PHP development server** (exposing only `public/`):
    ```bash
    php -S 0.0.0.0:8000 -t public
@@ -39,10 +44,10 @@
      --dart-define=FIREBASE_IOS_BUNDLE_ID=your.ios.bundle.id
    ```
 
-   Include `FIREBASE_WEB_API_KEY`, `FIREBASE_WEB_APP_ID`, `FIREBASE_WEB_AUTH_DOMAIN`, and `FIREBASE_WEB_VAPID_KEY` when running the web app. Never commit Firebase service-account credentials or private keys.
+   Include `FIREBASE_WEB_API_KEY`, `FIREBASE_WEB_APP_ID`, `FIREBASE_WEB_AUTH_DOMAIN`, and `FIREBASE_WEB_VAPID_KEY` when running the web app. For web, replace the `YOUR_FIREBASE_*` placeholders in `web/firebase-messaging-sw.js` with the same Firebase web app values. Never commit Firebase service-account credentials or private keys.
 3. Configure an APNs authentication key for the iOS app in Firebase Console. Android 13+ will request notification permission in the app.
 4. Configure `FCM_PROJECT_ID` and `FCM_SERVICE_ACCOUNT_PATH` in `.env` with a Firebase service account that has Firebase Cloud Messaging permission. Keep the service-account JSON outside `public/`.
-5. Sign in on a device and allow notifications. Organizers and admins can use **Notify Registrants** on an event page to send updates to registered attendees.
+5. Sign in on a device and allow notifications. Organizers and admins can send event updates (such as venue changes or corrections) using **Notify Registrants**. Users can open **Notifications** from their profile to view received messages; senders can view messages in the **Sent** tab.
 
 ## Development Accounts (Password: `Password123!`)
 - **Admin**: `admin@campus.edu`

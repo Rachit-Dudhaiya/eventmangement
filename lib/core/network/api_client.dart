@@ -138,6 +138,11 @@ class ApiClient {
       throw const ApiException(
         message: 'Unable to reach server. Check your network and API URL.',
       );
+    } on http.ClientException {
+      throw const ApiException(
+        message:
+            'Unable to reach the API. Check that it is running, the API URL is correct, and CORS is enabled.',
+      );
     } on FormatException {
       throw const ApiException(
         message: 'Invalid response received from server.',

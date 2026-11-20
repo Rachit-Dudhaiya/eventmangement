@@ -51,7 +51,11 @@ class PushNotificationService {
     }
 
     await Firebase.initializeApp(options: options);
-    if (!kIsWeb) {
+    if (kIsWeb) {
+      await _localNotifications.initialize(
+        settings: const InitializationSettings(),
+      );
+    } else {
       await FirebaseMessaging.instance
           .setForegroundNotificationPresentationOptions(
         alert: true,
@@ -92,6 +96,7 @@ class PushNotificationService {
     // ignore: deprecated_member_use
     final token = await messaging.getToken(
       vapidKey: kIsWeb ? _webVapidKey : null,
+      serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
     );
     if (token != null && token.isNotEmpty) {
       await _saveToken(apiClient, token);
@@ -116,6 +121,7 @@ class PushNotificationService {
     // ignore: deprecated_member_use
     final token = await FirebaseMessaging.instance.getToken(
       vapidKey: kIsWeb ? _webVapidKey : null,
+      serviceWorkerScriptPath: kIsWeb ? 'firebase-messaging-sw.js' : null,
     );
     if (token != null && token.isNotEmpty) {
       await apiClient.delete(
@@ -142,24 +148,30 @@ class PushNotificationService {
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
-
     final notification = message.notification;
     if (notification?.title == null || notification?.body == null) return;
+
+    final details = kIsWeb
+        ? const NotificationDetails(web: WebNotificationDetails())
+        : defaultTargetPlatform == TargetPlatform.android
+            ? const NotificationDetails(
+                android: AndroidNotificationDetails(
+                  'campus_event_updates',
+                  'Campus event updates',
+                  channelDescription:
+                      'Updates about events you are registered for.',
+                  importance: Importance.high,
+                  priority: Priority.high,
+                ),
+              )
+            : null;
+    if (details == null) return;
 
     await _localNotifications.show(
       id: message.hashCode,
       title: notification!.title,
       body: notification.body,
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'campus_event_updates',
-          'Campus event updates',
-          channelDescription: 'Updates about events you are registered for.',
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-      ),
+      notificationDetails: details,
     );
   }
 

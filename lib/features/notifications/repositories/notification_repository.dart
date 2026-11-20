@@ -27,4 +27,17 @@ class NotificationRepository {
       },
     );
   }
+
+  Future<Map<String, dynamic>> getNotifications() async {
+    final response = await _apiClient.get(ApiConstants.notifications);
+    final data = response['data'];
+    if (data is! Map<String, dynamic>) {
+      throw const FormatException('Invalid notification response');
+    }
+    return data;
+  }
+
+  Future<void> markAsRead(int notificationId) async {
+    await _apiClient.patch(ApiConstants.markNotificationRead(notificationId));
+  }
 }

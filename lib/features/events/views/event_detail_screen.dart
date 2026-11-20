@@ -226,34 +226,44 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        _InfoRow(
+                        _InfoTile(
                           icon: Icons.schedule_outlined,
+                          iconBg: AppTheme.blue50,
+                          iconColor: AppTheme.primaryIndigo,
                           label: 'Starts',
                           value: DateFormatter.formatDateTime(event.startTime),
                         ),
                         const Divider(height: 20),
-                        _InfoRow(
+                        _InfoTile(
                           icon: Icons.event_available_outlined,
+                          iconBg: AppTheme.teal50,
+                          iconColor: AppTheme.accentTeal,
                           label: 'Ends',
                           value: DateFormatter.formatDateTime(event.endTime),
                         ),
                         const Divider(height: 20),
-                        _InfoRow(
+                        _InfoTile(
                           icon: Icons.location_on_outlined,
+                          iconBg: AppTheme.blue50,
+                          iconColor: AppTheme.primaryIndigo,
                           label: 'Venue',
                           value: event.venue,
                         ),
                         const Divider(height: 20),
-                        _InfoRow(
+                        _InfoTile(
                           icon: Icons.people_outline,
+                          iconBg: AppTheme.teal50,
+                          iconColor: AppTheme.accentTeal,
                           label: 'Capacity',
                           value:
                               '${event.registeredCount} / ${event.maxCapacity} registered',
                         ),
                         if (event.organizerName != null) ...[
                           const Divider(height: 20),
-                          _InfoRow(
+                          _InfoTile(
                             icon: Icons.person_outline,
+                            iconBg: AppTheme.blue50,
+                            iconColor: AppTheme.primaryIndigo,
                             label: 'Organizer',
                             value: event.organizerName!,
                           ),
@@ -312,6 +322,12 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                     ),
                 ],
                 if (isOwnerOrAdmin) ...[
+                  OutlinedButton.icon(
+                    onPressed: () => _notifyRegistrants(event.id, event.title),
+                    icon: const Icon(Icons.notifications_active_outlined),
+                    label: const Text('Notify Registrants'),
+                  ),
+                  const SizedBox(height: 10),
                   FilledButton.icon(
                     onPressed: () => context.push('/attendance/qr/${event.id}',
                         extra: event),

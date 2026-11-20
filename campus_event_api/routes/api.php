@@ -61,6 +61,8 @@ $router->add('GET', '/api/my-attendance', [AttendanceController::class, 'myAtten
 // Notifications
 $router->add('POST', '/api/notifications/device-token', [NotificationController::class, 'saveDeviceToken'], [AuthMiddleware::requireAuth()]);
 $router->add('DELETE', '/api/notifications/device-token', [NotificationController::class, 'deleteDeviceToken'], [AuthMiddleware::requireAuth()]);
+$router->add('GET', '/api/notifications', [NotificationController::class, 'index'], [AuthMiddleware::requireAuth()]);
+$router->add('PATCH', '/api/notifications/{id}/read', [NotificationController::class, 'markAsRead'], [AuthMiddleware::requireAuth()]);
 $router->add('POST', '/api/notifications/send', [NotificationController::class, 'send'], [AuthMiddleware::requireAuth(['organizer', 'admin'])]);
 
 // Profile

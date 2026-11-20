@@ -12,6 +12,7 @@ import '../../features/dashboard/views/home_shell.dart';
 import '../../features/events/models/event_model.dart';
 import '../../features/events/views/event_detail_screen.dart';
 import '../../features/events/views/event_form_screen.dart';
+import '../../features/notifications/views/notifications_screen.dart';
 
 class _RouterRefreshNotifier extends ChangeNotifier {
   void notify() => notifyListeners();
@@ -54,6 +55,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomeShell(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         path: '/events/create',

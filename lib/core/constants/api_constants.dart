@@ -40,6 +40,8 @@ class ApiConstants {
   static const String myAttendance = '/api/my-attendance';
 
   static const String deviceToken = '/api/notifications/device-token';
+  static const String notifications = '/api/notifications';
+  static String markNotificationRead(int id) => '/api/notifications/$id/read';
   static const String sendNotification = '/api/notifications/send';
 
   static const String profile = '/api/profile';

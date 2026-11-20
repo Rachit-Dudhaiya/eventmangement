@@ -49,6 +49,32 @@ final class NotificationController
         Response::ok('Device token unregistered');
     }
 
+    public function index(array $context): void
+    {
+        $repository = new NotificationRepository();
+        $userId = (int) $context['user']['id'];
+
+        Response::ok('Notifications retrieved', [
+            'received' => $repository->getReceivedNotifications($userId),
+            'sent' => $repository->getSentNotifications($userId),
+        ]);
+    }
+
+    public function markAsRead(array $context): void
+    {
+        $notificationId = (int) ($context['params']['id'] ?? 0);
+        if ($notificationId < 1) {
+            Response::error('Notification not found', 404);
+        }
+
+        $userId = (int) $context['user']['id'];
+        if (!(new NotificationRepository())->markNotificationAsRead($userId, $notificationId)) {
+            Response::error('Notification not found', 404);
+        }
+
+        Response::ok('Notification marked as read');
+    }
+
     public function send(array $context): void
     {
         $input = Response::readJsonBody();
@@ -69,6 +95,7 @@ final class NotificationController
         }
 
         $notifRepo = new NotificationRepository();
+        $recipientUserIds = $notifRepo->getRecipientUserIdsForEvent($eventId);
         $tokens = $notifRepo->getTokensForEventRegistrants($eventId);
         $result = (new FcmService())->sendToTokens(
             $tokens,
@@ -77,14 +104,17 @@ final class NotificationController
             ['event_id' => (string) $eventId, 'type' => 'event_update']
         );
 
-        $notifRepo->logNotification(
+        $notificationId = $notifRepo->logNotification(
             $eventId,
             (int) $user['id'],
             trim((string) $input['title']),
             trim((string) $input['body']),
-            count($tokens)
+            $recipientUserIds
         );
 
-        Response::ok('Notification processed', array_merge($result, ['recipient_count' => count($tokens)]));
+        Response::ok('Notification processed', array_merge($result, [
+            'notification_id' => $notificationId,
+            'recipient_count' => count($recipientUserIds),
+        ]));
     }
 }
