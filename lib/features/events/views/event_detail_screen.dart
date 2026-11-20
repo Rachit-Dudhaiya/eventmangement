@@ -42,12 +42,18 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
           .read(eventViewModelProvider.notifier)
           .loadEventDetail(widget.eventId);
       if (!mounted) return;
+
+      final event = ref.read(eventViewModelProvider).selectedEvent;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Registered for event! Pass is ready.'),
+          content: Text('🎉 Registration Confirmed! Here is your Attendance QR Code.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
+
+      // Immediately navigate to the Dynamic QR Attendance Pass
+      context.push('/attendance/student-pass/${widget.eventId}', extra: event);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

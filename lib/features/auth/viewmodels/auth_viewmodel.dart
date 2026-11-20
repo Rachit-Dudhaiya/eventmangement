@@ -87,10 +87,10 @@ class AuthViewModel extends Notifier<AuthState> {
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
       return false;
-    } catch (_) {
+    } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Unexpected error occurred during login.',
+        errorMessage: 'Login failed: ${e.toString().replaceAll('Exception:', '').trim()}',
       );
       return false;
     }

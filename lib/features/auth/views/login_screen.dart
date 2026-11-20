@@ -30,6 +30,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _onRoleChanged(String role) {
     setState(() {
       _selectedRole = role;
+      if (role == 'student') {
+        _emailController.text = 'student@campus.edu';
+        _passwordController.text = 'Password123!';
+      } else {
+        _emailController.text = 'organizer@campus.edu';
+        _passwordController.text = 'Password123!';
+      }
     });
   }
 

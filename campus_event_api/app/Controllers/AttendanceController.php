@@ -210,24 +210,28 @@ final class AttendanceController
             Response::error('Forbidden: you are not the organizer for this event', 403);
         }
 
-        // Verify active check-in session
+        // Verify active check-in session (auto-start 30-min session if organizer scans directly)
         $attRepo = new AttendanceRepository();
         $session = $attRepo->getActiveSession($eventId);
         if ($session === null || strtotime($session['expires_at']) <= time()) {
-            Response::error('Attendance session is NOT started for this event. Tap "Start Session" to begin scanning.', 400);
+            $session = $attRepo->startAttendanceSession($eventId, (int) $user['id'], 30);
         }
 
-        // Verify 10-second rotating window freshness (allow ±25 seconds for network / scanning latency)
+        // Verify 10-second rotating window freshness (allow ±30 seconds for network / scanning latency)
         $now = time();
         $timeDiff = abs($now - $timestamp);
-        if ($timestamp === 0 || $timeDiff > 25) {
+        if ($timestamp === 0 || $timeDiff > 30) {
             Response::error('QR code has expired. Student must show the live updating QR code.', 400);
         }
 
-        // Verify student registration
-        $registration = (new RegistrationRepository())->findByEventAndUser($eventId, $studentUserId);
-        if ($registration === null || $registration['status'] !== 'registered') {
-            Response::error('Student is not registered for this event', 403);
+        // Verify student registration (or register student if not yet registered)
+        $regRepo = new RegistrationRepository();
+        $registration = $regRepo->findByEventAndUser($eventId, $studentUserId);
+        if ($registration === null) {
+            $regId = $regRepo->create($eventId, $studentUserId);
+            $registration = ['id' => $regId, 'status' => 'registered'];
+        } else if ($registration['status'] !== 'registered') {
+            Response::error('Student registration is not active', 403);
         }
 
         // Check if already attended
