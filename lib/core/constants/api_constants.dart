@@ -10,7 +10,10 @@ class ApiConstants {
     if (defined.isNotEmpty) {
       return defined;
     }
-    if (kIsWeb) {
+    if (kIsWeb ||
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.macOS ||
+        defaultTargetPlatform == TargetPlatform.linux) {
       return 'http://localhost:8000';
     }
     // 10.0.2.2 routes to host machine localhost from the Android Emulator
