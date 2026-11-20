@@ -1,4 +1,5 @@
 import 'package:eventmanagment/core/widgets/event_card.dart';
+import 'package:eventmanagment/features/attendance/models/attendance_model.dart';
 import 'package:eventmanagment/features/auth/models/user_model.dart';
 import 'package:eventmanagment/features/auth/viewmodels/auth_viewmodel.dart';
 import 'package:eventmanagment/features/auth/views/login_screen.dart';
@@ -49,6 +50,39 @@ void main() {
 
       expect(event.isFull, isTrue);
       expect(event.categoryName, 'Workshop');
+    });
+
+    test('AttendanceSessionModel and StudentPassModel parse session window correctly', () {
+      final session = AttendanceSessionModel.fromJson({
+        'event_id': 1,
+        'is_active': true,
+        'expires_at': '2026-11-20 10:30:00',
+        'remaining_seconds': 1800,
+        'duration_minutes': 30,
+        'session_token': 'CAMPUS_SESSION_1_abc',
+      });
+
+      expect(session.eventId, 1);
+      expect(session.isActive, isTrue);
+      expect(session.remainingSeconds, 1800);
+      expect(session.durationMinutes, 30);
+
+      final pass = StudentPassModel.fromJson({
+        'event_id': 1,
+        'event_title': 'Flutter Bootcamp',
+        'registration_id': 10,
+        'user_id': 3,
+        'student_name': 'Aarav Patel',
+        'student_id_number': '24CE001',
+        'is_attended': false,
+        'session_active': true,
+        'session_expires_at': '2026-11-20 10:30:00',
+      });
+
+      expect(pass.studentName, 'Aarav Patel');
+      expect(pass.studentIdNumber, '24CE001');
+      expect(pass.isAttended, isFalse);
+      expect(pass.sessionActive, isTrue);
     });
   });
 

@@ -342,8 +342,18 @@ class _StudentHomeTabState extends ConsumerState<StudentHomeTab> {
 
                                 // High Contrast Teal FilledButton
                                 FilledButton(
-                                  onPressed: () =>
-                                      context.push('/attendance/scan'),
+                                  onPressed: () {
+                                    final activeRegs = regState.registrations
+                                        .where((r) =>
+                                            r.registrationStatus == 'registered')
+                                        .toList();
+                                    if (activeRegs.isNotEmpty) {
+                                      context.push(
+                                          '/attendance/student-pass/${activeRegs.first.eventId}');
+                                    } else {
+                                      context.push('/attendance/scan');
+                                    }
+                                  },
                                   style: FilledButton.styleFrom(
                                     backgroundColor: AppTheme.accentTeal,
                                     minimumSize: const Size.fromHeight(48),
@@ -352,18 +362,22 @@ class _StudentHomeTabState extends ConsumerState<StudentHomeTab> {
                                     ),
                                     elevation: 2,
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
-                                        Icons.qr_code_scanner,
+                                        activeRegsCount > 0
+                                            ? Icons.qr_code_2_rounded
+                                            : Icons.qr_code_scanner,
                                         size: 20,
                                         color: Colors.white,
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Text(
-                                        'Scan Event Attendance QR',
-                                        style: TextStyle(
+                                        activeRegsCount > 0
+                                            ? 'Show Dynamic Attendance Pass'
+                                            : 'Scan Event Attendance QR',
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white,

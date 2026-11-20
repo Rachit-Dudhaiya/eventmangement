@@ -43,6 +43,48 @@ final class AttendanceRepository
         return $row ?: null;
     }
 
+    public function getActiveSession(int $eventId): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM attendance_qr_tokens 
+             WHERE event_id = :event_id AND is_revoked = 0 AND expires_at > NOW() 
+             ORDER BY id DESC LIMIT 1'
+        );
+        $stmt->execute(['event_id' => $eventId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function startAttendanceSession(int $eventId, int $generatedBy, int $durationMinutes = 30): array
+    {
+        // Revoke any previous active session tokens for this event
+        $revokeStmt = $this->db->prepare(
+            'UPDATE attendance_qr_tokens SET is_revoked = 1 WHERE event_id = :event_id AND is_revoked = 0'
+        );
+        $revokeStmt->execute(['event_id' => $eventId]);
+
+        $plainToken = 'CAMPUS_SESSION_' . $eventId . '_' . bin2hex(random_bytes(16));
+        $expiresAt = date('Y-m-d H:i:s', time() + ($durationMinutes * 60));
+
+        $id = $this->createQrToken($eventId, $generatedBy, $plainToken, $expiresAt);
+
+        return [
+            'id' => $id,
+            'event_id' => $eventId,
+            'session_token' => $plainToken,
+            'expires_at' => $expiresAt,
+            'duration_minutes' => $durationMinutes,
+        ];
+    }
+
+    public function stopAttendanceSession(int $eventId): bool
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE attendance_qr_tokens SET is_revoked = 1 WHERE event_id = :event_id AND is_revoked = 0'
+        );
+        return $stmt->execute(['event_id' => $eventId]);
+    }
+
     public function findByRegistrationId(int $registrationId): ?array
     {
         $stmt = $this->db->prepare('SELECT * FROM attendance WHERE registration_id = :registration_id LIMIT 1');
@@ -51,7 +93,7 @@ final class AttendanceRepository
         return $row ?: null;
     }
 
-    public function recordAttendance(int $registrationId, int $eventId, int $userId, int $qrTokenId, string $status = 'present'): int
+    public function recordAttendance(int $registrationId, int $eventId, int $userId, ?int $qrTokenId = null, string $status = 'present'): int
     {
         $stmt = $this->db->prepare(
             'INSERT INTO attendance (registration_id, event_id, user_id, qr_token_id, status)

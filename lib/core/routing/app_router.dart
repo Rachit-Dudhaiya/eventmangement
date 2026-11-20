@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/attendance/views/attendance_report_screen.dart';
+import '../../features/attendance/views/dynamic_qr_pass_screen.dart';
 import '../../features/attendance/views/qr_generate_screen.dart';
 import '../../features/attendance/views/qr_scan_screen.dart';
 import '../../features/auth/viewmodels/auth_viewmodel.dart';
@@ -80,7 +81,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/attendance/scan',
-        builder: (context, state) => const QrScanScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return QrScanScreen(
+            eventId: extra?['eventId'] as int?,
+            eventTitle: extra?['eventTitle'] as String?,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/attendance/student-pass/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          final event = state.extra as EventModel?;
+          return DynamicQrPassScreen(eventId: id, event: event);
+        },
       ),
       GoRoute(
         path: '/attendance/qr/:id',

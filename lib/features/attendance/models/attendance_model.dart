@@ -16,7 +16,78 @@ class AttendanceQrModel {
       eventId: int.parse(json['event_id'].toString()),
       qrToken: (json['qr_token'] ?? '').toString(),
       expiresAt: (json['expires_at'] ?? '').toString(),
-      ttlMinutes: int.tryParse(json['ttl_minutes']?.toString() ?? '15') ?? 15,
+      ttlMinutes: int.tryParse(json['ttl_minutes']?.toString() ?? '30') ?? 30,
+    );
+  }
+}
+
+class AttendanceSessionModel {
+  const AttendanceSessionModel({
+    required this.eventId,
+    required this.isActive,
+    this.expiresAt,
+    this.remainingSeconds = 0,
+    this.durationMinutes = 30,
+    this.sessionToken,
+  });
+
+  final int eventId;
+  final bool isActive;
+  final String? expiresAt;
+  final int remainingSeconds;
+  final int durationMinutes;
+  final String? sessionToken;
+
+  factory AttendanceSessionModel.fromJson(Map<String, dynamic> json) {
+    return AttendanceSessionModel(
+      eventId: int.tryParse(json['event_id']?.toString() ?? '0') ?? 0,
+      isActive: json['is_active'] == true || json['is_active'] == 1,
+      expiresAt: json['expires_at']?.toString(),
+      remainingSeconds:
+          int.tryParse(json['remaining_seconds']?.toString() ?? '0') ?? 0,
+      durationMinutes:
+          int.tryParse(json['duration_minutes']?.toString() ?? '30') ?? 30,
+      sessionToken: json['session_token']?.toString(),
+    );
+  }
+}
+
+class StudentPassModel {
+  const StudentPassModel({
+    required this.eventId,
+    required this.eventTitle,
+    required this.registrationId,
+    required this.userId,
+    required this.studentName,
+    required this.studentIdNumber,
+    required this.isAttended,
+    required this.sessionActive,
+    this.sessionExpiresAt,
+  });
+
+  final int eventId;
+  final String eventTitle;
+  final int registrationId;
+  final int userId;
+  final String studentName;
+  final String studentIdNumber;
+  final bool isAttended;
+  final bool sessionActive;
+  final String? sessionExpiresAt;
+
+  factory StudentPassModel.fromJson(Map<String, dynamic> json) {
+    return StudentPassModel(
+      eventId: int.tryParse(json['event_id']?.toString() ?? '0') ?? 0,
+      eventTitle: (json['event_title'] ?? '').toString(),
+      registrationId:
+          int.tryParse(json['registration_id']?.toString() ?? '0') ?? 0,
+      userId: int.tryParse(json['user_id']?.toString() ?? '0') ?? 0,
+      studentName: (json['student_name'] ?? '').toString(),
+      studentIdNumber: (json['student_id_number'] ?? '').toString(),
+      isAttended: json['is_attended'] == true || json['is_attended'] == 1,
+      sessionActive:
+          json['session_active'] == true || json['session_active'] == 1,
+      sessionExpiresAt: json['session_expires_at']?.toString(),
     );
   }
 }

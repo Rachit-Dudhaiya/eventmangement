@@ -43,12 +43,18 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
           .read(eventViewModelProvider.notifier)
           .loadEventDetail(widget.eventId);
       if (!mounted) return;
+
+      final event = ref.read(eventViewModelProvider).selectedEvent;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Registered for event! Pass is ready.'),
+          content: Text('🎉 Registration Confirmed! Here is your Attendance QR Code.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
+
+      // Immediately navigate to the Dynamic QR Attendance Pass
+      context.push('/attendance/student-pass/${widget.eventId}', extra: event);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -272,6 +278,7 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                     ),
                   ),
                 ),
+<<<<<<< HEAD
                 const SizedBox(height: 20),
                 Text(
                   'About this event',
@@ -302,6 +309,176 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                               ? null
                               : _handleCancelRegistration,
                           child: const Text('Cancel Registration'),
+=======
+                child: SafeArea(
+                  top: false,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (user != null && user.isStudent) ...[
+                        if (event.isRegistered) ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: FilledButton(
+                                  onPressed: () => context.push(
+                                    '/attendance/student-pass/${event.id}',
+                                    extra: event,
+                                  ),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: AppTheme.accentTeal,
+                                    minimumSize: const Size.fromHeight(48),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.qr_code_2_rounded,
+                                          size: 20, color: Colors.white),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Show Live QR Pass (10s)',
+                                        style: TextStyle(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton(
+                                onPressed: regState.isSubmitting
+                                    ? null
+                                    : _handleCancelRegistration,
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(48, 48),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  side: const BorderSide(
+                                      color: AppTheme.cardBorder),
+                                ),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  color: Color(0xFFEF4444),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ] else ...[
+                          FilledButton(
+                            onPressed: (regState.isSubmitting ||
+                                    event.isFull ||
+                                    event.status != 'published')
+                                ? null
+                                : _handleRegister,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppTheme.primaryIndigo,
+                              minimumSize: const Size.fromHeight(48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: regState.isSubmitting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.how_to_reg_rounded,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        event.isFull
+                                            ? 'Event Full'
+                                            : event.status != 'published'
+                                                ? 'Registration Closed'
+                                                : 'Register Now',
+                                        style: const TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.2,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ],
+                      ] else if (isOwnerOrAdmin) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: () => context.push(
+                                  '/attendance/qr/${event.id}',
+                                  extra: event,
+                                ),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryIndigo,
+                                  minimumSize: const Size.fromHeight(48),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.qr_code_2_rounded, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Generate QR',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => context.push(
+                                  '/attendance/report/${event.id}',
+                                  extra: event,
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  side: const BorderSide(
+                                    color: AppTheme.primaryIndigo,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'View Report',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.primaryIndigo,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+>>>>>>> fbaab0d57280d183683c333d60d87eb7029b9afe
                         ),
                       ],
                     )

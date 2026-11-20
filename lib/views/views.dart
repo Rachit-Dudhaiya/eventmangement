@@ -7,6 +7,7 @@ export '../features/dashboard/views/organizer_dashboard_tab.dart';
 export '../features/events/views/event_detail_screen.dart';
 export '../features/events/views/event_list_screen.dart';
 export '../features/events/views/event_form_screen.dart';
+export '../features/attendance/views/dynamic_qr_pass_screen.dart';
 export '../features/attendance/views/qr_scan_screen.dart';
 export '../features/attendance/views/qr_generate_screen.dart';
 export '../features/attendance/views/attendance_report_screen.dart';

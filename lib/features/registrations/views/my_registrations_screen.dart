@@ -91,11 +91,35 @@ class _MyRegistrationsScreenState extends ConsumerState<MyRegistrationsScreen> {
                             if (reg.isAttended)
                               Chip(
                                 label: const Text(
-                                  'Attended',
-                                  style: TextStyle(fontSize: 11),
+                                  'Attended ✓',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF0F766E),
+                                  ),
                                 ),
-                                backgroundColor: Colors.green.shade100,
+                                backgroundColor: const Color(0xFFCCFBF1),
                                 visualDensity: VisualDensity.compact,
+                              )
+                            else if (!isCancelled)
+                              ActionChip(
+                                avatar: const Icon(Icons.qr_code_2_rounded,
+                                    size: 16, color: Color(0xFF0D9488)),
+                                label: const Text(
+                                  'Live QR Pass (10s)',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF0D9488),
+                                  ),
+                                ),
+                                backgroundColor: const Color(0xFFF0FDFA),
+                                side: const BorderSide(
+                                    color: Color(0xFF99F6E4)),
+                                visualDensity: VisualDensity.compact,
+                                onPressed: () => context.push(
+                                  '/attendance/student-pass/${reg.eventId}',
+                                ),
                               ),
                           ],
                         ),
