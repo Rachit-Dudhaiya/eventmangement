@@ -54,8 +54,11 @@ class ApiClient {
     return _send('PATCH', path, body: body);
   }
 
-  Future<Map<String, dynamic>> delete(String path) async {
-    return _send('DELETE', path);
+  Future<Map<String, dynamic>> delete(
+    String path, {
+    Map<String, dynamic>? body,
+  }) async {
+    return _send('DELETE', path, body: body);
   }
 
   Future<Map<String, dynamic>> _send(
@@ -104,7 +107,7 @@ class ApiClient {
           break;
         case 'DELETE':
           response = await _httpClient
-              .delete(uri, headers: headers)
+              .delete(uri, headers: headers, body: encodedBody)
               .timeout(const Duration(seconds: 15));
           break;
         default:

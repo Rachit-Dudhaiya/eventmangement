@@ -30,6 +30,17 @@ final class NotificationRepository
         ]);
     }
 
+    public function deleteDeviceToken(int $userId, string $fcmToken): void
+    {
+        $stmt = $this->db->prepare(
+            'DELETE FROM device_tokens WHERE user_id = :user_id AND fcm_token = :fcm_token'
+        );
+        $stmt->execute([
+            'user_id' => $userId,
+            'fcm_token' => $fcmToken,
+        ]);
+    }
+
     public function getTokensForEventRegistrants(int $eventId): array
     {
         $stmt = $this->db->prepare(

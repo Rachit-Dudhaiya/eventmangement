@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../auth/viewmodels/auth_viewmodel.dart';
+import '../../notifications/views/send_notification_dialog.dart';
 import '../../registrations/viewmodels/registration_viewmodel.dart';
 import '../viewmodels/event_viewmodel.dart';
 
@@ -74,6 +75,29 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _notifyRegistrants(int eventId, String eventTitle) async {
+    final response = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => SendNotificationDialog(
+        eventId: eventId,
+        eventTitle: eventTitle,
+      ),
+    );
+    if (!mounted || response == null) return;
+
+    final data = response['data'] as Map<String, dynamic>? ?? {};
+    final sent = data['sent'] ?? 0;
+    final failed = data['failed'] ?? 0;
+    final note = data['note'] as String?;
+    final message = note ??
+        (failed == 0
+            ? 'Push notification sent to $sent devices.'
+            : 'Sent to $sent devices; $failed notifications failed.');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -228,6 +252,12 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                     ),
                 ],
                 if (isOwnerOrAdmin) ...[
+                  OutlinedButton.icon(
+                    onPressed: () => _notifyRegistrants(event.id, event.title),
+                    icon: const Icon(Icons.notifications_active_outlined),
+                    label: const Text('Notify Registrants'),
+                  ),
+                  const SizedBox(height: 10),
                   FilledButton.icon(
                     onPressed: () =>
                         context.push('/attendance/qr/${event.id}', extra: event),

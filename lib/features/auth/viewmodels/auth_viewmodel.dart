@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/errors/api_exception.dart';
 import '../../../core/providers/core_providers.dart';
+import '../../../core/services/push_notification_service.dart';
 import '../models/user_model.dart';
 import '../repositories/auth_repository.dart';
 import '../services/auth_service.dart';
@@ -65,6 +67,7 @@ class AuthViewModel extends Notifier<AuthState> {
         isLoading: false,
         isInitialized: true,
       );
+      if (user != null) await _registerPushToken();
     } catch (_) {
       state = state.copyWith(
         clearUser: true,
@@ -83,6 +86,7 @@ class AuthViewModel extends Notifier<AuthState> {
         isLoading: false,
         isInitialized: true,
       );
+      await _registerPushToken();
       return true;
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
@@ -117,6 +121,7 @@ class AuthViewModel extends Notifier<AuthState> {
         isLoading: false,
         isInitialized: true,
       );
+      await _registerPushToken();
       return true;
     } on ApiException catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.message);
@@ -137,9 +142,24 @@ class AuthViewModel extends Notifier<AuthState> {
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
     try {
+      try {
+        await PushNotificationService.instance
+            .unregisterDeviceToken(ref.read(apiClientProvider));
+      } catch (error) {
+        debugPrint('Unable to unregister the push notification token: $error');
+      }
       await _repository.logout();
     } finally {
       state = state.copyWith(clearUser: true, isLoading: false);
+    }
+  }
+
+  Future<void> _registerPushToken() async {
+    try {
+      await PushNotificationService.instance
+          .registerDeviceToken(ref.read(apiClientProvider));
+    } catch (error) {
+      debugPrint('Unable to register the push notification token: $error');
     }
   }
 }

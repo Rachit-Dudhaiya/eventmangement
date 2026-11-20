@@ -33,6 +33,22 @@ final class NotificationController
         Response::ok('Device token registered');
     }
 
+    public function deleteDeviceToken(array $context): void
+    {
+        $input = Response::readJsonBody();
+        $errors = Validator::requireFields($input, ['fcm_token']);
+        if ($errors !== []) {
+            Response::error('Validation failed', 422, $errors);
+        }
+
+        (new NotificationRepository())->deleteDeviceToken(
+            (int) $context['user']['id'],
+            trim((string) $input['fcm_token'])
+        );
+
+        Response::ok('Device token unregistered');
+    }
+
     public function send(array $context): void
     {
         $input = Response::readJsonBody();
