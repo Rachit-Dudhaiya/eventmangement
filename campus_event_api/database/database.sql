@@ -163,9 +163,9 @@ INSERT INTO event_categories (name, description) VALUES
 ('Workshop', 'Hands-on skill development sessions');
 
 INSERT INTO events (organizer_id, category_id, title, description, venue, start_time, end_time, max_capacity, status) VALUES
-(2, 5, 'Flutter & PHP Full-Stack Bootcamp', 'Build a real-world Campus Event & Attendance app from scratch using Flutter, PHP 8, MySQL, and FCM.', 'Main Auditorium, Block A', DATE_ADD(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 2 DAY + INTERVAL 6 HOUR), 120, 'published'),
+(2, 5, 'Flutter & PHP Full-Stack Bootcamp', 'Build a real-world Campus Event & Attendance app from scratch using Flutter, PHP 8, MySQL, and FCM.', 'Main Auditorium, Block A', DATE_ADD(NOW(), INTERVAL 2 DAY), DATE_ADD(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 6 HOUR), 120, 'published'),
 (2, 1, 'Annual Campus Hackathon 2026', '24-hour team coding challenge solving campus sustainability and student productivity problems.', 'Innovation Lab, 3rd Floor', DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_ADD(NOW(), INTERVAL 8 DAY), 80, 'published'),
-(2, 4, 'AI & Cloud Architecture Seminar', 'Industry architects discuss scalable mobile backends, REST APIs, and responsible AI workflows.', 'Seminar Hall 2', DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_ADD(NOW(), INTERVAL 10 DAY + INTERVAL 3 HOUR), 150, 'published');
+(2, 4, 'AI & Cloud Architecture Seminar', 'Industry architects discuss scalable mobile backends, REST APIs, and responsible AI workflows.', 'Seminar Hall 2', DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_ADD(DATE_ADD(NOW(), INTERVAL 10 DAY), INTERVAL 3 HOUR), 150, 'published');
 
 INSERT INTO event_registrations (event_id, user_id, status) VALUES
 (1, 3, 'registered'),
