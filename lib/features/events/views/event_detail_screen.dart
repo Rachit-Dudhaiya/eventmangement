@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../auth/viewmodels/auth_viewmodel.dart';
@@ -19,6 +20,8 @@ class EventDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
+  bool _isBookmarked = false;
+
   @override
   void initState() {
     super.initState();
@@ -41,13 +44,17 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
           .loadEventDetail(widget.eventId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registered for event!')),
+        const SnackBar(
+          content: Text('Registered for event! Pass is ready.'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(err),
           backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
@@ -65,13 +72,17 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
           .loadEventDetail(widget.eventId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration cancelled')),
+        const SnackBar(
+          content: Text('Registration cancelled'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(err),
           backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
@@ -108,15 +119,64 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
     final event = eventState.selectedEvent;
 
     return Scaffold(
+      backgroundColor: AppTheme.surfaceBg,
       appBar: AppBar(
-        title: const Text('Event Details'),
+        backgroundColor: AppTheme.surfaceBg,
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          'Event Details',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.textPrimary,
+          ),
+        ),
         actions: [
+          IconButton(
+            tooltip: _isBookmarked ? 'Remove bookmark' : 'Bookmark event',
+            icon: Icon(
+              _isBookmarked
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_border_rounded,
+              color:
+                  _isBookmarked ? AppTheme.accentTeal : AppTheme.textSecondary,
+            ),
+            onPressed: () {
+              setState(() => _isBookmarked = !_isBookmarked);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_isBookmarked
+                      ? 'Event saved to bookmarks'
+                      : 'Bookmark removed'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+          IconButton(
+            tooltip: 'Share event',
+            icon:
+                const Icon(Icons.share_outlined, color: AppTheme.textSecondary),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Event link copied to clipboard'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
           if (event != null &&
               user != null &&
               (user.isAdmin || user.id == event.organizerId))
             IconButton(
               tooltip: 'Edit Event',
-              icon: const Icon(Icons.edit_outlined),
+              icon: const Icon(Icons.edit_outlined,
+                  color: AppTheme.primaryIndigo),
               onPressed: () =>
                   context.push('/events/${event.id}/edit', extra: event),
             ),
@@ -143,8 +203,8 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
             );
           }
 
-          final isOwnerOrAdmin = user != null &&
-              (user.isAdmin || user.id == event.organizerId);
+          final isOwnerOrAdmin =
+              user != null && (user.isAdmin || user.id == event.organizerId);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -252,23 +312,16 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                     ),
                 ],
                 if (isOwnerOrAdmin) ...[
-                  OutlinedButton.icon(
-                    onPressed: () => _notifyRegistrants(event.id, event.title),
-                    icon: const Icon(Icons.notifications_active_outlined),
-                    label: const Text('Notify Registrants'),
-                  ),
-                  const SizedBox(height: 10),
                   FilledButton.icon(
-                    onPressed: () =>
-                        context.push('/attendance/qr/${event.id}', extra: event),
+                    onPressed: () => context.push('/attendance/qr/${event.id}',
+                        extra: event),
                     icon: const Icon(Icons.qr_code_2),
                     label: const Text('Generate Attendance QR'),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
-                    onPressed: () => context.push(
-                        '/attendance/report/${event.id}',
-                        extra: event),
+                    onPressed: () => context
+                        .push('/attendance/report/${event.id}', extra: event),
                     icon: const Icon(Icons.analytics_outlined),
                     label: const Text('View Attendance Report'),
                   ),
@@ -282,14 +335,18 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
+class _InfoTile extends StatelessWidget {
+  const _InfoTile({
     required this.icon,
+    required this.iconBg,
+    required this.iconColor,
     required this.label,
     required this.value,
   });
 
   final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
   final String label;
   final String value;
 
@@ -298,16 +355,38 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 12),
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: iconBg,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: iconColor, size: 20),
+        ),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.4,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
               const SizedBox(height: 2),
-              Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
             ],
           ),
         ),

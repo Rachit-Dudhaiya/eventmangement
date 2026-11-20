@@ -15,6 +15,19 @@ use App\Middleware\AuthMiddleware;
 
 $router = new Router();
 
+// Root welcome endpoint
+$router->add('GET', '/', function (): void {
+    Response::ok('Campus Event & Attendance API is live and healthy!', [
+        'status' => 'online',
+        'endpoints' => [
+            'health' => '/api/health',
+            'events' => '/api/events',
+            'categories' => '/api/categories',
+            'login' => '/api/auth/login',
+        ],
+    ]);
+});
+
 // Health check
 $router->add('GET', '/api/health', function (): void {
     Response::ok('Campus Event API is running', ['timestamp' => date('c')]);

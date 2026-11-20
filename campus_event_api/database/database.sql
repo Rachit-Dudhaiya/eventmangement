@@ -149,30 +149,25 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 -- SEED DATA (Development Accounts - Password for all: Password123!)
 -- ============================================================================
 
-INSERT INTO events
-(organizer_id, category_id, title, description, venue,
- start_time, end_time, max_capacity, status)
-VALUES
-(2, 5,
- 'Flutter & PHP Full-Stack Bootcamp',
- 'Build a real-world Campus Event & Attendance app from scratch using Flutter, PHP 8, MySQL, and FCM.',
- 'Main Auditorium, Block A',
- DATE_ADD(NOW(), INTERVAL 2 DAY),
- DATE_ADD(DATE_ADD(NOW(), INTERVAL 2 DAY), INTERVAL 6 HOUR),
- 120, 'published'),
+INSERT INTO users (full_name, email, password_hash, role, student_id_number, department, phone) VALUES
+('Dr. Meera Shah', 'admin@campus.edu', '$2y$10$VuD10as6ppxHstPp6jsNbO5GyNIMLYAzXsjQkr2XrLJoLyfMF/hbS', 'admin', 'ADM001', 'Administration', '+91-9876543210'),
+('Prof. Rohan Verma', 'organizer@campus.edu', '$2y$10$VuD10as6ppxHstPp6jsNbO5GyNIMLYAzXsjQkr2XrLJoLyfMF/hbS', 'organizer', 'FAC102', 'Computer Engineering', '+91-9876543211'),
+('Aarav Patel', 'student@campus.edu', '$2y$10$VuD10as6ppxHstPp6jsNbO5GyNIMLYAzXsjQkr2XrLJoLyfMF/hbS', 'student', '24CE001', 'Computer Engineering', '+91-9876543212'),
+('Priya Nair', 'priya@campus.edu', '$2y$10$VuD10as6ppxHstPp6jsNbO5GyNIMLYAzXsjQkr2XrLJoLyfMF/hbS', 'student', '24CE002', 'Information Technology', '+91-9876543213');
 
-(2, 1,
- 'Annual Campus Hackathon 2026',
- '24-hour team coding challenge solving campus sustainability and student productivity problems.',
- 'Innovation Lab, 3rd Floor',
- DATE_ADD(NOW(), INTERVAL 7 DAY),
- DATE_ADD(NOW(), INTERVAL 8 DAY),
- 80, 'published'),
+INSERT INTO event_categories (name, description) VALUES
+('Technical', 'Coding workshops, hackathons, and tech talks'),
+('Cultural', 'Music, dance, drama, and annual fests'),
+('Sports', 'Inter-department tournaments and athletics'),
+('Seminar', 'Guest lectures, career guidance, and research talks'),
+('Workshop', 'Hands-on skill development sessions');
 
-(2, 4,
- 'AI & Cloud Architecture Seminar',
- 'Industry architects discuss scalable mobile backends, REST APIs, and responsible AI workflows.',
- 'Seminar Hall 2',
- DATE_ADD(NOW(), INTERVAL 10 DAY),
- DATE_ADD(DATE_ADD(NOW(), INTERVAL 10 DAY), INTERVAL 3 HOUR),
- 150, 'published');
+INSERT INTO events (organizer_id, category_id, title, description, venue, start_time, end_time, max_capacity, status) VALUES
+(2, 5, 'Flutter & PHP Full-Stack Bootcamp', 'Build a real-world Campus Event & Attendance app from scratch using Flutter, PHP 8, MySQL, and FCM.', 'Main Auditorium, Block A', DATE_ADD(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 2 DAY + INTERVAL 6 HOUR), 120, 'published'),
+(2, 1, 'Annual Campus Hackathon 2026', '24-hour team coding challenge solving campus sustainability and student productivity problems.', 'Innovation Lab, 3rd Floor', DATE_ADD(NOW(), INTERVAL 7 DAY), DATE_ADD(NOW(), INTERVAL 8 DAY), 80, 'published'),
+(2, 4, 'AI & Cloud Architecture Seminar', 'Industry architects discuss scalable mobile backends, REST APIs, and responsible AI workflows.', 'Seminar Hall 2', DATE_ADD(NOW(), INTERVAL 10 DAY), DATE_ADD(NOW(), INTERVAL 10 DAY + INTERVAL 3 HOUR), 150, 'published');
+
+INSERT INTO event_registrations (event_id, user_id, status) VALUES
+(1, 3, 'registered'),
+(2, 3, 'registered'),
+(1, 4, 'registered');
